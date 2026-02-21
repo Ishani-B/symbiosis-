@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symbiosis</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div id="app-loader">
+        <div class="loader-content">
+            <div class="loader-logo">🌍</div>
+            <h2>Symbiosis</h2>
+            <p>Initializing Global Policy Data...</p>
+            <div class="loader-bar"><div class="loader-progress"></div></div>
+        </div>
+    </div>
+
+    <div class="page">
+        <header style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <h1>Symbiosis | Environmental Policy & Data Nexus</h1>
+                <p class="subtitle">Explore, analyze, and draft environmental policies.</p>
+            </div>
+            <button id="helpBtn" class="help-btn" title="how to use this tool">
+                how to use platform
+            </button>
+        </header>
+
+        <div id="helpModal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Welcome!</h2>
+                    <button id="closeHelpBtn" class="close-modal-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="help-section">
+                        <h3>1. The Network Map</h3>
+                        <p>Explore how environmental policies are connected globally. <strong>Hover</strong> over a node to see a quick summary, or <strong>Double-Click</strong> to pin the tooltip.</p>
+                    </div>
+                    <div class="help-section">
+                        <h3>2. Telemetry Dashboard</h3>
+                        <p>Switch to the Telemetry tab and select a country to view real-world environmental data (CO₂, Renewables, Air Quality). The dashed vertical lines show when major policies were enacted.</p>
+                    </div>
+                    <div class="help-section">
+                        <h3>3. Policy Analyzer</h3>
+                        <p>Upload a draft policy or local ordinance (PDF) in the Analyzer tab to instantly compare it against our global database and receive actionable feedback.</p>
+                    </div>
+                    <div class="help-section">
+                        <h3>4. AI Chat & Reports</h3>
+                        <p>Use the chat window to ask questions. Click the <strong>Document Icon (📄)</strong> in the chat header to generate a formal brief for the currently selected country.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" id="tab-map" onclick="switchTab('map')">Network Map</button>
+            <button class="tab-btn" id="tab-dashboard" onclick="switchTab('dashboard')">Telemetry Dashboard</button>
+            <button class="tab-btn" id="tab-analyzer" onclick="switchTab('analyzer')">Policy Analyzer</button>
+        </div>
+
+        <div id="view-map" class="view-section active">
+            <div class="controls-card">
+                <div class="controls-row">
+                    <div class="field"><label>Search</label><input type="text" id="searchInput"></div>
+                    <div class="field"><label>Category</label><select id="categorySelect"><option value="">All</option></select></div>
+                    <div class="field"><label>Type</label><select id="typeSelect"><option value="">All</option></select></div>
+                </div>
+            </div>
+            <div class="graph-wrap">
+                <div id="mynetwork"></div>
+                <div class="graph-overlay" id="loadingOverlay"><div class="spinner"></div></div>
+            </div>
+            <div class="bar">
+                <div class="legend" id="legend"></div>
+                <div class="graph-actions">
+                    <input type="range" id="spacingSlider" min="-10000" max="-500" step="500" value="-1800">
+                    <button class="btn" id="resetViewBtn">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-dashboard" class="view-section">
+            <div class="dashboard-controls" style="display: flex; gap: 16px; align-items: center;">
+                <select id="countrySelect" onchange="loadDashboard()"></select>
+                <span style="font-weight: 700; color: var(--text-muted);">VS</span>
+                <select id="countrySelect2" onchange="loadDashboard()">
+                    <option value="" selected>compare with... (optional)</option>
+                </select>
+            </div>
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>CO₂ Emissions</h3>
+                    <div class="canvas-container"><canvas id="chartCo2"></canvas></div>
+                    <div class="chart-source">source: world bank open data api</div>
+                </div>
+                <div class="chart-card">
+                    <h3>Renewables %</h3>
+                    <div class="canvas-container"><canvas id="chartRenewables"></canvas></div>
+                    <div class="chart-source">source: world bank open data api</div>
+                </div>
+                <div class="chart-card">
+                    <h3>Air Quality (PM2.5)</h3>
+                    <div class="canvas-container"><canvas id="chartAqi"></canvas></div>
+                    <div class="chart-source">source: world bank api (historical) & openaq (live)</div>
+                </div>
+            </div>
+        </div>
+        <div id="view-analyzer" class="view-section">
+            <div class="analyzer-container">
+                <div class="upload-box" id="uploadBox">
+                    <h2>Upload a Draft Policy</h2>
+                    <p>Upload a local ordinance or policy draft (PDF) to instantly compare it against our global database.</p>
+                    <input type="file" id="analyzerFileInput" accept=".pdf" style="display: none;">
+                    <button class="btn" onclick="document.getElementById('analyzerFileInput').click()">Select PDF File</button>
+                    <div id="uploadFileName" class="file-name"></div>
+                    <div style="margin-top: 16px;">
+                        <button class="btn btn-primary" id="analyzeSubmitBtn" style="display:none;">Analyze Document</button>
+                        <button class="btn" id="analyzeClearBtn" style="display:none; margin-left: 8px;">Clear</button>
+                    </div>
+                </div>
+                
+                <div id="analyzerLoading" class="hidden" style="text-align: center; padding: 40px;">
+                    <div class="spinner"></div>
+                    <p style="color: var(--text-muted); margin-top: 16px;">Extracting text and comparing to global corpus...</p>
+                </div>
+                
+                <div id="analyzerResults" class="formal-report hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="customTooltip"></div>
+    
+    <div id="aiChatWindow">
+        <div class="chat-header">
+            <span>Symbiosis Assistant</span>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <button id="genReportBtn" title="generate policy brief" style="background:none; border:none; color:white; cursor:pointer; font-size:1.1rem; padding:0;">📄</button>
+                <button id="minimizeBtn" title="minimize chat" style="background:none; border:none; color:white; cursor:pointer; font-size:1.2rem; padding:0; font-weight:bold;">&minus;</button>
+            </div>
+        </div>
+        <div class="chat-history" id="chatHistory"></div>
+        <div class="chat-input-area">
+            <input type="text" id="aiInput" placeholder="Ask about policies or data...">
+            <button id="aiSendBtn">Send</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/graph.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/telemetry.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+</body>
+</html>

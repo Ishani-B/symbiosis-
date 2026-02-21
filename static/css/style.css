@@ -1,0 +1,732 @@
+:root {
+    --bg: #f4f6f5; 
+    --surface: #ffffff; 
+    --border: #e2e8e4; 
+    --text: #2c3b32; 
+    --text-muted: #6b7a70; 
+    --accent: #3b5e4a; 
+    --accent-hover: #2b4737; 
+    --accent-soft: #e8ecea; 
+    --error: #9c4343; 
+    --error-soft: #f5e6e6; 
+    --radius: 20px; 
+    --radius-sm: 12px; 
+    --shadow: 0 4px 20px rgba(44, 59, 50, 0.04); 
+    --shadow-md: 0 8px 30px rgba(44, 59, 50, 0.06); 
+    --shadow-lg: 0 12px 40px rgba(44, 59, 50, 0.1);
+}
+
+* { 
+    box-sizing: border-box; 
+}
+
+body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    margin: 0;
+    padding: 24px;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+}
+
+.page { 
+    max-width: 1400px; 
+    margin: 0 auto; 
+}
+
+header { 
+    margin-bottom: 24px; 
+}
+
+h1 { 
+    font-size: 1.75rem; 
+    font-weight: 700; 
+    letter-spacing: -0.02em; 
+    margin: 0 0 4px 0; 
+}
+
+.subtitle { 
+    font-size: 0.9375rem; 
+    color: var(--text-muted); 
+    margin: 0; 
+}
+
+/*this is tab navigation styling: this handles the visual state of the toggles using active classes, and this is why we do it like this to give the user immediate feedback on which view they are currently inspecting*/
+.tabs { 
+    display: flex; 
+    gap: 8px; 
+    margin-bottom: 24px; 
+    border-bottom: 1px solid var(--border); 
+    padding-bottom: 12px; 
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s;
+}
+
+.tab-btn:hover { 
+    background: var(--surface); 
+    color: var(--text); 
+}
+
+.tab-btn.active { 
+    background: var(--accent); 
+    color: white; 
+}
+
+.view-section { 
+    display: none; 
+    animation: fadeIn 0.3s ease; 
+}
+
+.view-section.active { 
+    display: block; 
+}
+
+@keyframes fadeIn { 
+    from { opacity: 0; transform: translateY(5px); } 
+    to { opacity: 1; transform: translateY(0); } 
+}
+
+/*this is dashboard and charts styling: this uses css grid to align the canvases dynamically, and this is why we do it like this so the charts stack neatly on top of each other if viewed on smaller screens*/
+.dashboard-controls {
+    background: var(--surface);
+    padding: 20px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 24px;
+}
+
+.chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    height: 420px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-card h3 { 
+    margin: 0 0 16px 0; 
+    font-size: 1rem; 
+    color: var(--text); 
+    font-weight: 600; 
+}
+
+.canvas-container { 
+    flex-grow: 1; 
+    position: relative; 
+    width: 100%; 
+}
+
+/*this is network graph styling: this outlines the primary canvas area for vis.js and the corresponding control wrappers, and this is why we do it like this to contain the physics engine interactions within a clean white surface box*/
+.controls-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+}
+
+.controls-row { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 12px; 
+    align-items: flex-end; 
+}
+
+.field { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 6px; 
+}
+
+.field label { 
+    font-size: 0.8125rem; 
+    font-weight: 500; 
+    color: var(--text-muted); 
+}
+
+input[type="text"], select {
+    font-family: inherit;
+    font-size: 0.9375rem;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+    min-width: 200px;
+}
+
+.graph-wrap {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    min-height: 560px;
+}
+
+#mynetwork { 
+    width: 100%; 
+    height: 70vh; 
+    min-height: 520px; 
+    background: var(--bg); 
+    outline: none; 
+}
+
+.bar { 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    gap: 16px; 
+    margin-top: 16px; 
+}
+
+.legend { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 12px; 
+    align-items: center; 
+}
+
+.legend-item { 
+    display: flex; 
+    align-items: center; 
+    gap: 6px; 
+    font-size: 0.8125rem; 
+    color: var(--text-muted); 
+}
+
+.legend-dot { 
+    width: 10px; 
+    height: 10px; 
+    border-radius: 50%; 
+}
+
+.slider-container { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    background: var(--surface); 
+    padding: 4px 12px; 
+    border: 1px solid var(--border); 
+    border-radius: var(--radius-sm); 
+}
+
+.btn {
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.btn:hover { 
+    background: var(--bg); 
+    border-color: var(--text-muted); 
+}
+
+/*this is custom tooltip styling: this hides the element by default and applies absolute positioning, and this is why we do it like this so javascript can grab it and pin it dynamically exactly where the mouse cursor lands*/
+#customTooltip {
+    position: absolute;
+    display: none;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    box-shadow: var(--shadow-lg);
+    z-index: 9999;
+    width: 320px;
+    max-height: 300px;
+    overflow-y: auto;
+    font-size: 0.875rem;
+    color: var(--text);
+    pointer-events: auto;
+}
+
+.btn-telemetry {
+    width: 100%;
+    margin-top: 12px;
+    background: var(--text);
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/*this is chat window styling: this defines the fixed bottom-right widget layout utilizing flexbox and standard css resize, and this is why we do it like this to build an overlay assistant that scales and wraps code/images neatly*/
+#aiChatWindow {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 380px;
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    z-index: 1000;
+    resize: both;
+    overflow: hidden;
+    min-width: 320px;
+    min-height: 300px;
+}
+
+#aiChatWindow.minimized { 
+    height: auto !important; 
+    min-height: 0 !important; 
+    width: 250px !important; 
+    min-width: 0 !important;
+    resize: none; 
+}
+
+#aiChatWindow.minimized .chat-history,
+#aiChatWindow.minimized .chat-input-area {
+    display: none !important;
+}
+
+.chat-header {
+    background: var(--accent);
+    color: white;
+    padding: 12px 16px;
+    font-weight: 600;
+    cursor: grab;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.chat-history {
+    flex-grow: 1;
+    padding: 16px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--bg);
+}
+
+/* edge case: target webkit scrollbars specifically to create a slim customized thumb that matches the app theme */
+.chat-history::-webkit-scrollbar { 
+    width: 6px; 
+}
+
+.chat-history::-webkit-scrollbar-track { 
+    background: var(--bg); 
+}
+
+.chat-history::-webkit-scrollbar-thumb { 
+    background: #d1d5db; 
+    border-radius: 10px; 
+}
+
+.chat-history::-webkit-scrollbar-thumb:hover { 
+    background: var(--accent); 
+}
+
+.msg {
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    max-width: 85%;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+
+.ai-msg { 
+    background: white; 
+    border: 1px solid var(--border); 
+    align-self: flex-start; 
+}
+
+.user-msg { 
+    background: var(--accent-soft); 
+    color: var(--accent-hover); 
+    align-self: flex-end; 
+}
+
+.chat-input-area {
+    padding: 12px;
+    background: white;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.chat-input-area input {
+    flex-grow: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+}
+
+#aiSendBtn {
+    background: var(--text);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.msg p { 
+    margin: 0 0 8px 0; 
+}
+
+.msg table { 
+    display: block; 
+    overflow-x: auto; 
+    border-collapse: collapse; 
+    margin-top: 8px; 
+}
+
+.msg th, .msg td { 
+    border: 1px solid var(--border); 
+    padding: 6px 10px; 
+    text-align: left; 
+}
+
+/*this is analyzer tab styling: this creates a centralized box layout for file uploads and formats the primary action button, and this is why we do it like this to give the user a focused, distraction-free area to work on their documents*/
+.analyzer-container { 
+    max-width: 800px; 
+    margin: 0 auto; 
+    padding: 20px 0; 
+}
+
+.upload-box {
+    background: var(--surface);
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 40px 20px;
+    text-align: center;
+    margin-bottom: 24px;
+    transition: border-color 0.2s;
+}
+
+.upload-box:hover { 
+    border-color: var(--accent); 
+}
+
+.upload-box h2 { 
+    margin-top: 0; 
+    color: var(--text); 
+}
+
+.upload-box p { 
+    color: var(--text-muted); 
+    margin-bottom: 24px; 
+}
+
+.file-name { 
+    margin-top: 12px; 
+    font-weight: 600; 
+    color: var(--accent); 
+}
+
+/* edge case: specific primary button class to draw the user's eye to the main call to action after attaching a file */
+.btn-primary { 
+    background: var(--text); 
+    color: white; 
+    border-color: var(--text); 
+    padding: 10px 20px; 
+    font-weight: 600; 
+}
+
+.btn-primary:hover { 
+    background: #000; 
+    color: white; 
+}
+
+.graph-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(250, 248, 245, 0.9);
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.2s;
+}
+
+.graph-overlay.visible { 
+    opacity: 1; 
+    pointer-events: auto; 
+}
+
+.spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto;
+}
+
+/*this is formal report styling: this creates a specific document-like visual envelope overriding standard chat fonts, and this is why we do it like this to immediately visually separate raw ai chat from exported executive briefs*/
+.formal-report {
+    background: #ffffff;
+    border-left: 4px solid var(--accent);
+    padding: 20px;
+    margin-top: 10px;
+    font-family: 'Times New Roman', serif;
+    color: #1a1a1a;
+    box-shadow: var(--shadow-md);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.formal-report h1, .formal-report h2, .formal-report h3 {
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 6px;
+    margin-top: 16px;
+    margin-bottom: 12px;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.formal-report h1 { font-size: 1.5rem; }
+.formal-report h2 { font-size: 1.25rem; }
+
+.formal-report p, .formal-report li {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+/*this is initial loading screen styling: this pins a solid background to cover the entire viewport upon page render, and this is why we do it like this to mask ugly unstyled dom loading states while massive script files are parsed*/
+#app-loader {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.6s ease-out, visibility 0.6s ease-out;
+}
+
+#app-loader.hidden { 
+    opacity: 0; 
+    visibility: hidden; 
+}
+
+.loader-content { 
+    text-align: center; 
+}
+
+.loader-logo {
+    font-size: 4rem;
+    margin-bottom: 12px;
+    animation: float 3s ease-in-out infinite;
+}
+
+.loader-content h2 { 
+    font-size: 2rem; 
+    color: var(--text); 
+    margin: 0 0 8px 0; 
+    letter-spacing: -0.02em; 
+}
+
+.loader-content p { 
+    color: var(--text-muted); 
+    margin: 0 0 24px 0; 
+    font-size: 1rem; 
+}
+
+.loader-bar {
+    width: 240px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 0 auto;
+    overflow: hidden;
+    position: relative;
+}
+
+/* edge case: use left and width relative positioning combined with keyframes to loop a loading bar that looks authentic */
+.loader-progress {
+    position: absolute;
+    left: -50%;
+    height: 100%;
+    width: 50%;
+    background: var(--accent);
+    border-radius: 2px;
+    animation: slideProgress 1.5s ease-in-out infinite;
+}
+
+@keyframes spin { 
+    to { transform: rotate(360deg); } 
+}
+
+@keyframes float { 
+    0%, 100% { transform: translateY(0); } 
+    50% { transform: translateY(-12px); } 
+}
+
+@keyframes slideProgress { 
+    0% { left: -50%; } 
+    100% { left: 100%; } 
+}
+
+/*this is help modal styling: this uses an absolute backdrop filter trick to blur the main app under a fixed central dialog box, and this is why we do it like this to draw pure user attention to the instructions without requiring a page redirect*/
+.help-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.help-btn:hover { 
+    background: var(--bg); 
+    border-color: var(--accent); 
+    color: var(--accent); 
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(28, 25, 23, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.modal-overlay.hidden { 
+    opacity: 0; 
+    visibility: hidden; 
+}
+
+.modal-content {
+    background: var(--surface);
+    width: 90%;
+    max-width: 600px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    transform: translateY(0);
+    transition: transform 0.3s ease;
+}
+
+/* edge case: translate the y axis slightly during hidden state so it visually drops in upon opening */
+.modal-overlay.hidden .modal-content { 
+    transform: translateY(20px); 
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--accent-soft);
+}
+
+.modal-header h2 { 
+    margin: 0; 
+    font-size: 1.25rem; 
+    color: var(--accent-hover); 
+}
+
+.close-modal-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: color 0.2s;
+}
+
+.close-modal-btn:hover { 
+    color: var(--error); 
+}
+
+.modal-body { 
+    padding: 24px; 
+    max-height: 70vh; 
+    overflow-y: auto; 
+}
+
+.help-section { 
+    margin-bottom: 20px; 
+}
+
+.help-section:last-child { 
+    margin-bottom: 0; 
+}
+
+.help-section h3 { 
+    margin: 0 0 8px 0; 
+    font-size: 1.05rem; 
+    color: var(--text); 
+}
+
+.help-section p { 
+    margin: 0; 
+    font-size: 0.95rem; 
+    color: var(--text-muted); 
+    line-height: 1.6; 
+}
+
+.hidden { 
+    display: none !important; 
+}
+
+/*this is chart source styling: this formats the text directly beneath the canvases, and this is why we do it like this to provide academic rigor and attribution to the api data without cluttering the graph itself*/
+.chart-source {
+    text-align: right;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-top: 8px;
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
+}
