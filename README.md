@@ -1,4 +1,5 @@
 ## Symbiosis: Environmental Policy & Data Nexus
+### Ishani Bakshi Hack for Humanity 2026
 ### Overview
 Symbiosis is a full-stack platform designed to bridge the gap between abstract environmental legislation and tangible ecological impact. By integrating a global database of environmental policies with real-time and historical telemetry, the tool allows users to visualize how legislative actions correlate with shifts in CO2 emissions, renewable energy adoption, and air quality. The system features an organic network mapping interface, a dual-country comparison dashboard, and an AI-driven policy workshop for analyzing draft ordinances.
 
