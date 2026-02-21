@@ -6,7 +6,8 @@ Symbiosis is a full-stack platform designed to bridge the gap between abstract e
 ### Key Features
 
 * Interactive Network Map: Visualizes the interconnectedness of global policies based on shared mechanisms (ex:carbon pricing or plastic bans), regions-implemented, issued addressed, or any other keyword filteration using a physics-based organic layout.
-        <img width="496" height="248.5" alt="Screenshot 2026-02-21 at 11 34 04 AM" src="https://github.com/user-attachments/assets/e054ffac-eea7-44ea-8fb8-c3e54423bbc8" />
+
+ <img width="496" height="248.5" alt="Screenshot 2026-02-21 at 11 34 04 AM" src="https://github.com/user-attachments/assets/e054ffac-eea7-44ea-8fb8-c3e54423bbc8" />
 
 * Live Dashboard: Provides synchronized time-series visualizations for CO2, Renewables, and PM2.5 levels of each region, allowing you to compare the progress of different regions with different environmental policy implementations.
   <img width="1029" height="274" alt="Screenshot 2026-02-21 at 11 37 50 AM" src="https://github.com/user-attachments/assets/93bcc9f2-9009-477f-94bd-7ef44cd47be6" />
